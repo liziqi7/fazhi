@@ -6,8 +6,7 @@ define('', '', function(require) {
 	var V = B.View.extend({
 		template: H,
 		events: {
-			"click .js-back": "goback",
-			"click .js-login-btn": "doLogin"
+			"click .js-back": "goback"
 		},
 		initialize: function() {
 			var t = this;

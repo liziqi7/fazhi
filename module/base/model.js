@@ -30,11 +30,6 @@ define('base/model', '', function(require) {
             } else {
                 this.url = this.get("action");
             }
-
-            // 搜索很特殊
-            if (this.get("action").indexOf("product/productListForPname") != -1 && this.get("pars")["pageNo"]) {
-                this.url += "?pageNo=" + this.get("pars")["pageNo"]
-            }
             t.fetch({
                 cache: true,
                 success: function(rs) {
