@@ -27,26 +27,26 @@ define('', '', function(require) {
 		initialize: function() {
 			var t = this;
 			indexSelf = this;
-			t.listenToOnce(t.model, "change:data", function() {
+			// t.listenToOnce(t.model, "change:data", function() {
 				t.render();
-				t.listenTo(t.model, "sync", function() {
-					t.syncRender();
-				});
-			});
+				// t.listenTo(t.model, "sync", function() {
+				// 	t.syncRender();
+				// });
+			// });
 		},
 		//待优化
 		render: function() {
 			var t = this,
-				data = t.model.toJSON();
+				data = {};//t.model.toJSON();
 			var html = _.template(t.template, data);
-			t.totalSize = Number(data.page.totalSize);
-			t.totalPage = Math.ceil(t.totalSize / data.page.pageSize);
+			// t.totalSize = Number(data.page.totalSize);
+			// t.totalPage = Math.ceil(t.totalSize / data.page.pageSize);
 			t.$el.show().html(html);
-			// 轮播图
+			// // 轮播图
 			new Slider({
-				el: t.$el.find(".js-slider-box")
+				el: t.$el.find(".js-slider-panel")
 			});
-			t.bindEvent();
+			// t.bindEvent();
 		},
 		syncRender: function() {
 			var t = this,
@@ -144,9 +144,9 @@ define('', '', function(require) {
 		}
 	});
 	return function(pars) {
-		model.set({
-			action: 'favorite/publicFavoriteList'
-		});
+		// model.set({
+		// 	action: 'favorite/publicFavoriteList'
+		// });
 		return new V({
 			el: $("#" + pars.model + "_" + pars.action)
 		});

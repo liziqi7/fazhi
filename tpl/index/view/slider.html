@@ -2,8 +2,8 @@
     <ul class="slider-list">
         <%_.each(data,function(item){%>
             <li>
-                <a href="javascript:;" data-id="<%=item.id%>" data-cdescribe="<%=item.cdescribe%>">
-                    <img src="resource/images/loadimg.png" data-src="<%=ST.PATH.AJAXIMG+item.cpicture%>" alt=""/>
+                <a href="javascript:;" data-id="<%=item.id%>" >
+                    <img src="resource/images/loadimg.png" data-src="<%=ST.PATH.IMAGE+item.pic%>" alt=""/>
                 </a>
             </li>
         <%})%>

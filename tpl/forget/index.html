@@ -1,32 +1,45 @@
-<div class="header">
-	<a href="javascript:;" class="btn-back js-back"><i class="icon"></i></a>
-	找回密码
+<div class="header sign-header">
+	<a class="back hd-left js-back" href="javascript:;">返回</a>找回密码
 </div>
-<div class="first-wrapper forget-wrapper">
-	<p class="error js-error">*<span></span></p>
-	<div class="forget-area ">
-		<div class="forget-ipt">
-			+86<input type="tel" value="<%=Jser.getItem('uname')%>" class="js-forget-tel" placeholder="输入注册手机号" />
+<div class="forget-wrapper">
+	<div class="forget-area hide">
+		<div class="forget-panel mt36">
+			<div class="forget-input">
+				<input type="text"  class="js-uname" name="tel" maxlength="20" placeholder="请输入您的注册邮箱/手机号" autocomplete="off" />
+			</div>
 		</div>
-		<div class="forget-btn forget-step js-forget-step">下一步</div>
+		<a href="javascript:;" class="btn login-btn mobile-btn js-verify-btn">下一步</a>
 	</div>
 	<div class="forget-area hide">
-		<div class="forget-info">
-			已向手机&nbsp;<span class="js-forget-tel2"></span>&nbsp;发送验证码
-			<img src="resource/images/forget-icon.png" />
+		<div class="forget-account">
+			<p class="forget-p">您要找回的账号为： <span>XXXXX</span></p>
 		</div>
-		<form id="js-forget-form">
-			<input type="hidden" value="<%=Jser.getItem("user_id")%>" name="user_id"/>
-			<div class="forget-ipt forget-ipt2">
-				<input type="text" class="js-oldpassword" name="oldpassword" placeholder="请输入手机收到的重置密码" maxlength="20" />
+		
+		<p class="forget-p">该账号已绑定手机或邮箱：</p>
+		<p class="forget-p">XXXXXX</p>
+		<a href="#" class="btn forget-verify-btn">获取验证码</a>
+		<p class="sign-error pl8">您输入的验证码有误或已超时请重新获取</p>	
+		<div class="forget-panel mt36">
+			<div class="forget-input">
+				<input type="text"  class="js-uname" name="tel" maxlength="20" placeholder="请输入验证码" autocomplete="off" />
+			</div>			
+		</div>		
+		<a href="javascript:;" class="btn login-btn mobile-btn js-verify-btn">下一步</a>
+	</div>
+	<div class="forget-area hide">
+		<div class="forget-panel mt36">
+			<div class="forget-input">
+				<input type="text"  class="js-uname" name="tel" maxlength="20" placeholder="请输入新密码" autocomplete="off" />
 			</div>
-			<div class="forget-ipt forget-ipt2">
-				<input type="password" class="js-password1" placeholder="请输入新密码(6-20位英文或者数字)" maxlength="20" />
-			</div>
-			<div class="forget-ipt forget-ipt2">
-				<input type="password" class="js-password2" name="password" placeholder="请重复输入新密码(6-20位英文或者数字)" maxlength="20" />
-			</div>
-			<div class="forget-btn forget-sure js-forget-sure">提交</div>
-		</form>	
+		</div>
+		<a href="javascript:;" class="btn login-btn mobile-btn js-verify-btn">确定</a>
+	</div>
+	<div class="mobile-area ">
+		<div class="sign-panel2">
+			<img src="resource/images/icon4.png" />
+			密码重置成功
+		</div>
+		<a href="#login/index" class="btn login-btn mobile-btn">登录</a>
+
 	</div>
 </div>

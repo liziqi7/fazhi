@@ -1,14 +1,123 @@
-window.Jser = {
-    _guid: 1,
+/**
+ * Jser - web app helper functions
+ */
+(function(win) {
+    var doc = document;
+    var noop = function() {};
+    win.Jser = win.Jser || {};
+    Jser.ua = navigator.userAgent;
+    Jser.viewportmeta = document.querySelector && document.querySelector('meta[name="viewport"]');
+
+    // 初始化控制台，防止控制台报错
+    (function() {
+        var method;
+        var methods = [
+            'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error',
+            'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log',
+            'markTimeline', 'profile', 'profileEnd', 'table', 'time', 'timeEnd',
+            'timeStamp', 'trace', 'warn'
+        ];
+        var length = methods.length;
+        var console = (win.console = win.console || {});
+
+        while (length--) {
+            method = methods[length];
+
+            // 检测控制台不存在的方法
+            if (!console[method]) {
+                console[method] = noop;
+            }
+        }
+    }());
+    // 初始化HTML5方法
+    (function() {
+        var method;
+        var methods = [
+            'localStorage'
+        ];
+        var length = methods.length;
+        while (length--) {
+            method = methods[length];
+            if (!win[method]) {
+                win[method] = noop;
+            }
+        }
+    }());
+    // 浏览器检测
+    (function(a) {
+        function b(a) {
+            var os = this.os = {},
+                browser = this.browser = {},
+                WebKit = a.match(/WebKit\/([\d.]+)/),
+                android = a.match(/(Android)[\s+|\/]([\d.]+)/),
+                windowPhone = a.match(/Windows\s+Phone/),
+                ipad = a.match(/(iPad).*OS\s([\d_]+)/),
+                iphone = !ipad && a.match(/(iPhone\sOS)\s([\d_]+)/),
+                webOS = a.match(/(webOS|hpwOS)[\s\/]([\d.]+)/),
+                touchPad = webOS && a.match(/TouchPad/),
+                Kindle = a.match(/Kindle\/([\d.]+)/),
+                Silk = a.match(/Silk\/([\d._]+)/),
+                BlackBerry = a.match(/(BlackBerry).*Version\/([\d.]+)/),
+                BB10 = a.match(/(BB10).*Version\/([\d.]+)/),
+                RIM = a.match(/(RIM\sTablet\sOS)\s([\d.]+)/),
+                PlayBook = a.match(/PlayBook/),
+                Chrome = a.match(/Chrome\/([\d.]+)/) || a.match(/CriOS\/([\d.]+)/),
+                Firefox = a.match(/Firefox\/([\d.]+)/),
+                PC = a.match(/Windows|Linux|Macintosh/);
+            if (browser.webkit = !!WebKit) browser.version = WebKit[1];
+            android && (os.android = !0, os.version = android[2]),
+                iphone && (os.ios = os.iphone = !0, os.version = iphone[2].replace(/_/g, ".")),
+                ipad && (os.ios = os.ipad = !0, os.version = ipad[2].replace(/_/g, ".")),
+                webOS && (os.webos = !0, os.version = webOS[2]),
+                touchPad && (os.touchpad = !0),
+                BlackBerry && (os.blackberry = !0, os.version = BlackBerry[2]),
+                BB10 && (os.bb10 = !0, os.version = BB10[2]),
+                RIM && (os.rimtabletos = !0, os.version = RIM[2]),
+                PlayBook && (browser.playbook = !0),
+                Kindle && (os.kindle = !0, os.version = Kindle[1]),
+                Silk && (browser.silk = !0, browser.version = Silk[1]), !Silk && os.android && a.match(/Kindle Fire/) && (browser.silk = !0),
+                Chrome && (browser.chrome = !0, browser.version = Chrome[1]),
+                Firefox && (browser.firefox = !0, browser.version = Firefox[1]),
+                os.tablet = !!(ipad || PlayBook || android && !a.match(/Mobile/) || Firefox && a.match(/Tablet/)),
+                os.phone = !os.tablet && !!(android || iphone || windowPhone || webOS || BlackBerry || BB10 || Chrome && a.match(/Android/) || Chrome && a.match(/CriOS\/([\d.]+)/) || Firefox && a.match(/Mobile/)),
+                os.pc = !os.tablet && !os.phone && !!PC;
+        }
+        var u = Jser.ua;
+        b.call(a, u), a.__detect = b;
+        a.os.touch = !!(('ontouchstart' in win) && win.DocumentTouch && doc instanceof DocumentTouch);
+    })(Jser);
+
+    // 是否开启debug模式
+    Jser.debug = false;
+    if (location.hash.indexOf("debug")) {
+        Jser.debug = true;
+    }
+
+    // 空函数
+    Jser.noop = noop;
+
+    Jser._guid = 1;
     /**
     获取唯一GUID
-    * @return {Number} 返回唯一GUID
-    * @static
+    * @return {Number} 返回唯一GUID 
     */
-    getGUID: function() {
+    Jser.getGUID = function() {
         return Jser._guid++;
-    },
-    loadimages: function(el) {
+    };
+    /**
+    错误图片
+    * @param {String or Element} [ssrc] [错误图片路径]    
+    */
+    Jser._errorImg = "";
+    Jser.setErrorImg = function(ssrc) {
+        Jser._errorImg = ssrc;
+    };
+    /**
+    懒加载图片
+    * @param {String or Element} [el] [选择器]
+    * @return {Number} 返回唯一GUID 
+    */
+    Jser.loadimages = function(el) {
         el = el || "body";
         var lazy = $(el).find("[data-src]");
         lazy.each(function(i) {
@@ -17,115 +126,138 @@ window.Jser = {
 
         function loadImg() {
             var t = this;
-            var source = t.getAttribute("data-src");
+            var dataSrc = t.getAttribute("data-src");
             var img = new Image();
-            img.src = source;
+            img.src = dataSrc;
             img.onload = function() {
-                t.setAttribute("src", source);
+                t.setAttribute("src", dataSrc);
                 $(t).removeAttr("data-src");
             }
             img.onerror = function() {
-                t.setAttribute("src", "resource/images/loadimg.png")
+                Jser._errorImg && t.setAttribute("src", Jser._errorImg)
             }
         }
-    },
-    uname: function(name) {
+    };
+    /**
+    加密手机号
+    * @param  {[String]} name [手机号]
+    * @return {[String]} 返回被加密的手机号
+    */
+    Jser.uname = function(name) {
         if (name) {
             name = name.substring(0, 3) + "****" + name.substring(8, 11);
         } else {
             name = "匿名";
         }
         return name;
-    },
-    prefixImg: function(src, high) {
-        if (!!high) {
-            var arr = ["/n1/", "_400x400q90", ""];
-        } else {
-            var arr = ["/n3/", "_200x200q90", "._SL500_SS100_"];
-        }
-        //JD
-        if (src.indexOf("360buyimg.com/") != -1) {
-            // http://img13.360buyimg.com/n1/jfs/t130/126/4881294294/146165/c187b01c/537ad954N944b3be6.jpg
-            // n1 由n0到n9从大到小
-            src = src.replace(/\/n\d\//, arr[0]);
-            return src;
-        }
-        // tmall
-        if (src.indexOf("alicdn.com/") != -1) {
-            // http://gi3.md.alicdn.com/bao/uploaded/i3/TB1p1N4GVXXXXbsXpXXXXXXXXXX_!!0-item_pic.jpg_600x600q90.jpg
-            // 600x600 为任意从20-600的数   但是x两边的数必须相同
-            src = src.replace(/_\d+x\d+q90/, arr[1]);
-            return src;
-        }
-        // amazoncn
-        if (src.indexOf("images-amazon.com/") != -1) {
-            // http://ec4.images-amazon.com/images/I/51U7naEevEL._SX38_SY50_CR,0,0,38,50_.jpg
-            // http://ec4.images-amazon.com/images/I/51U7naEevEL._SX38_SY50_CR,0,0,60,60_.jpg
-            // http://ec4.images-amazon.com/images/I/51U7naEevEL._SL500_SS100_.jpg
-            // http://ec4.images-amazon.com/images/I/51U7naEevEL.jpg
-            src = src.replace(/\._.+_/, arr[2]);
-            return src;
-        }
-        return src;
-    },
-    log: function(str) {
-        window.console && window.console.log(str);
-    },
-    setItem: function(key, name) {
-        window.localStorage.setItem(key, name);
-    },
-    getItem: function(key) {
-        return window.localStorage.getItem(key) || "";
-    },
-    getJSON: function(url, data, sfn, errfn, method, datatype, isload) {
-        var t = this,
-            _data = "";
-        data = data || {};
-        if (typeof data == "string") {
-            _data = data + "&iTime=" + (new Date()).getTime() + "&";
-        } else {
-            _data = data;
-            _data.iTime = (new Date()).getTime();
-        }
+    };
+    /**
+     * 设置离线缓存
+     * @param {[String]} key  [键]
+     * @param {[String]} name [值]
+     */
+    Jser.setItem = function(key, name) {
+        localStorage.setItem(key, name);
+    };
+    /**
+     * 获取离线缓存
+     * @param  {[String]} key [键]
+     * @return {[String]}     [值]
+     */
+    Jser.getItem = function(key) {
+        return localStorage.getItem(key) || "";
+    };
+    /**
+     * 打印log
+     * @param  {[String]} str [日志]
+     */
+    Jser.log = function(str) {
+        Jser.debug && console.log(str);
+    };
+    /**
+     * [扩展jQuery ajax方法]
+     * @param  {[String]} url      [地址]
+     * @param  {[String,Object]} data     [参数]
+     * @param  {[Function]} sfn      [成功返回函数]
+     * @param  {[Function]} errfn    [失败返回函数]
+     * @param  {[String]} method   [请求类型get 或者post]
+     * @param  {[String]} datatype [数据类型json或者jsonp]
+     * @param  {[Boolen]} isload   [是否显示加载进度条]
+     */
+    Jser.getJSON = function(url, data, sfn, errfn, method, datatype, isload) {
+        var t = this;
+        data = data || "";
         isload && $("#js-loading").show();
+        // 关闭全局AJAX缓存
+        // $.ajaxSetup({
+        //  cache: false 
+        // });
         $("body").queue(function() {
             $.ajax({
                 type: method || "get",
                 dataType: datatype || 'json',
                 contentType: 'application/x-www-form-urlencoded;charset=utf-8',
                 url: url,
-                data: _data || "",
+                cache: false,
+                data: data,
                 error: function(e, xhr, opt) {
                     $("#js-loading").hide();
                     $("body").dequeue();
                     if (xhr == "abort") {
-                        Jser.log("abort");
+                        Jser.log("------------------------error↓--------------------------");
+                        Jser.log("error:abort" + ",参数：" + data + ",地址:" + url);
+                        Jser.log("错误行为分析：")
+                        Jser.log("说明你的请求并没有返回值,或者返回值超时")
+                        Jser.log("1.检测是否断网了")
+                        Jser.log("2.检测当前参数" + data + "是否正确")
+                        Jser.log("3.是否清理缓存,ctrl+F5 强制清理缓存.")
+                        Jser.log("------------------------error↑------------------------");
                         return;
                     } else {
                         e.url = url;
-                        e.data = _data;
-                        Jser.log("e:" + e + "xhr:" + xhr + "opt:" + opt);
+                        e.data = data;
+                        Jserlog("------------------------error↓--------------------------");
+                        Jser.log("error:" + "参数：" + data + ",地址:" + url + "状态: " + e.status + " " + e.statusText);
+                        Jser.log("错误行为分析：")
+                        Jser.log("说明你的请求并没有返回值,或者返回值超时")
+                        Jser.log("1.检测是否断网了")
+                        Jser.log("2.检测当前参数" + data + "是否正确")
+                        Jser.log("3.是否清理缓存,ctrl+F5 强制清理缓存.")
+                        Jser.log("------------------------error↑------------------------");
                         errfn && errfn(e);
                     }
                 },
                 success: function(j) {
                     $("#js-loading").hide();
                     $("body").dequeue();
+                    var flag = false;
                     if (!j) {
-                        Jser.alert("与服务器连接异常，请重试")
+                        Jser.log("error:ajax没有返回数据");
+                        Jser.alert("与服务器链接失败，请重试");
+                        errfn && errfn();
                         return false;
                     }
-                    var s = Number(j.code),
-                        flag = false;
-                    if (s == 0) {
+                    var c = Number(j.code);
+                    if (c == 0) {
                         flag = true;
                     } else {
                         if (j.msg) {
                             Jser.alert(j.msg);
                         }
-                        Jser.log("code:" + j.code + " " + j.msg);
+                        Jser.log("------------------------error↓--------------------------");
+                        Jser.log("error:" + "参数：" + data + ",地址:" + url + ",code:" + j.code + ",message:" + j.msg);
+                        Jser.log("错误行为分析：")
+                        Jser.log("1.检测当前参数" + data + "是否正确")
+                        Jser.log("2.是否清理缓存,ctrl+F5 强制清理缓存.")
+                        Jser.log("------------------------error↑------------------------");
                     }
                     if (flag) {
+                        Jser.log("------------------------success↓--------------------------");
+                        Jser.log("参数：" + data);
+                        Jser.log("地址:" + url);
+                        Jser.log("返回值:");
+                        Jser.log(j);
+                        Jser.log("------------------------success↑------------------------");
                         sfn && sfn(j);
                     } else {
                         errfn && errfn(j);
@@ -133,72 +265,20 @@ window.Jser = {
                 }
             });
         });
-    },
-    /*    
-       获取文档大小
-       @eg
-       $.documentSize();
-   */
-    documentSize: function(d) {
-        d = d || document;
-        var c = d.documentElement,
-            b = d.body,
-            e = d.compatMode == 'CSS1Compat' ? c : b,
-            y = 'clientHeight',
-            l = 'scrollLeft',
-            t = 'scrollTop',
-            w = 'scrollWidth',
-            h = 'scrollHeight';
-        return {
-            fullWidth: e.scrollWidth,
-            fullHeight: Math.max(e.scrollHeight, e[y]),
-            viewWidth: e.clientWidth,
-            viewHeight: e[y],
-            scrollLeft: c[l] || b[l],
-            scrollTop: c[t] || b[t],
-            scrollWidth: c[l] || b[l],
-            scrollHeight: c[t] || b[t],
-            clientLeft: e.clientLeft,
-            clientTop: e.clientTop
-        }
-    },
-    /*    
-     获取元素基本信息
-     @eg
-     $.getBound("test")
+    };
+    /** 
+     * @return {[Number]} [获取滚动高度]
      */
-    getBound: function(el, a) {
-        var l = 0,
-            w = 0,
-            h = 0,
-            t = 0,
-            p = document.getElementById(el) || el,
-            o = $.documentSize(),
-            s = 'getBoundingClientRect',
-            r;
-        if (p) {
-            a = document.getElementById(a);
-            w = p.offsetWidth;
-            h = p.offsetHeight;
-            if (p[s] && !a) {
-                r = p[s]();
-                l = r.left + o.scrollLeft - o.clientLeft;
-                t = r.top + o.scrollTop - o.clientTop
-            } else
-                for (; p && p != a; l += p.offsetLeft || 0, t += p.offsetTop || 0, p = p.offsetParent) {}
-        }
-        return {
-            x: l,
-            y: t,
-            w: w,
-            h: h
-        }
-    },
-    error: function(elem, txt) {
-        $(elem).show().find("span").text(txt);
-        scrollTop();
-    },
-    alert: function(txt, callback) {
+    Jser.getScrollTop = function() {
+        return win.pageYOffset || doc.compatMode === 'CSS1Compat' && doc.documentElement.scrollTop || doc.body.scrollTop || 0;
+    };
+    /**
+     * 弹出框 需要对应的HTML片段和CSS
+     * @param  {[String]}   txt      [文本]
+     * @param  {Function} callback [确定的回调函数]
+     * @return {[Number]}            [返回当前弹出框的UID]
+     */
+    Jser.alert = function(txt, callback) {
         var $pop = $("#js-pop-tpl").find(".pop").clone();
         var uid = Jser.getGUID();
         $pop.find(".js-pop-txt").html(txt);
@@ -208,12 +288,20 @@ window.Jser = {
         $(".js-close").one('click', function() {
             var uid = $(this).data("uid");
             $("#js-pop" + uid).remove();
-            $(document).trigger("closepop" + uid);
+            $(doc).trigger("closepop" + uid);
             callback && callback();
         });
         return uid;
-    },
-    confirm: function(txt, ok, cancel, callback) {
+    };
+    /**
+     * [选择弹出框 需要对应的HTML片段和CSS]
+     * @param  {[String]}   txt      [文本]
+     * @param  {[Function]}   ok       [确定的回调函数]
+     * @param  {[Function]}   cancel   [取消的回调函数]
+     * @param  {Function} callback [弹出的回调函数]
+     * @return {[Number]}            [返回当前弹出框的UID]
+     */
+    Jser.confirm = function(txt, ok, cancel, callback) {
         var $pop = $("#js-pop-tpl").find(".pop").clone();
         var uid = Jser.getGUID();
         $pop.find(".js-pop-txt").html(txt);
@@ -235,59 +323,63 @@ window.Jser = {
         });
         callback && callback($pop);
         return uid;
-    },
-    share: function(params) {
-        if (!$.isEmptyObject(params)) {
-            $.extend(WeiXinShare, params);
+    };
+    // 显示分享
+    Jser.share = function() {
+        Jser.showShare();
+    };
+    Jser.showShare = function() {
+        $("#js-weixin-share").show().on("touchstart.share", this.hideShare);
+    };
+    Jser.hideShare = function() {
+        $("#js-weixin-share").hide().off("touchstart.share");
+    };
+    /**
+     * iOS启动动画 (示例)
+     */
+    Jser.startupImage = function() {
+        var portrait;
+        var landscape;
+        var pixelRatio;
+        var head;
+        var link1;
+        var link2;
+
+        pixelRatio = window.devicePixelRatio;
+        head = document.getElementsByTagName('head')[0];
+
+        if (navigator.platform === 'iPad') {
+            portrait = pixelRatio >= 2 ? 'portrait-retina.png' : 'portrait.png';
+            landscape = pixelRatio >= 2 ? 'landscape-retina.png' : 'landscape.png';
+
+            link1 = document.createElement('link');
+            link1.setAttribute('rel', 'apple-touch-startup-image');
+            link1.setAttribute('media', 'screen and (orientation: portrait)');
+            link1.setAttribute('href', portrait);
+            head.appendChild(link1);
+
+            link2 = document.createElement('link');
+            link2.setAttribute('rel', 'apple-touch-startup-image');
+            link2.setAttribute('media', 'screen and (orientation: landscape)');
+            link2.setAttribute('href', landscape);
+            head.appendChild(link2);
+        } else {
+            portrait = pixelRatio >= 2 ? "startup-retina.png" : "startup.png";
+            portrait = screen.height >= 568 ? "startup-retina-4in.png" : portrait;
+            link1 = document.createElement('link');
+            link1.setAttribute('rel', 'apple-touch-startup-image');
+            link1.setAttribute('href', portrait);
+            head.appendChild(link1);
         }
-        this.showShare();
-    },
-    showShare: function() {
-        $(".js-weixin_share").show().on("mousedown.share", this.hideShare);
-    },
-    hideShare: function() {
-        $(".js-weixin_share").hide().off("mousedown.share");
-    }
-};
-(function(a) {
-    function b(a) {
-        var os = this.os = {},
-            browser = this.browser = {},
-            WebKit = a.match(/WebKit\/([\d.]+)/),
-            android = a.match(/(Android)[\s+|\/]([\d.]+)/),
-            windowPhone = a.match(/Windows\s+Phone/),
-            ipad = a.match(/(iPad).*OS\s([\d_]+)/),
-            iphone = !ipad && a.match(/(iPhone\sOS)\s([\d_]+)/),
-            webOS = a.match(/(webOS|hpwOS)[\s\/]([\d.]+)/),
-            touchPad = webOS && a.match(/TouchPad/),
-            Kindle = a.match(/Kindle\/([\d.]+)/),
-            Silk = a.match(/Silk\/([\d._]+)/),
-            BlackBerry = a.match(/(BlackBerry).*Version\/([\d.]+)/),
-            BB10 = a.match(/(BB10).*Version\/([\d.]+)/),
-            RIM = a.match(/(RIM\sTablet\sOS)\s([\d.]+)/),
-            PlayBook = a.match(/PlayBook/),
-            Chrome = a.match(/Chrome\/([\d.]+)/) || a.match(/CriOS\/([\d.]+)/),
-            Firefox = a.match(/Firefox\/([\d.]+)/),
-            PC = a.match(/Windows|Linux|Macintosh/);
-        if (browser.webkit = !!WebKit) browser.version = WebKit[1];
-        android && (os.android = !0, os.version = android[2]),
-            iphone && (os.ios = os.iphone = !0, os.version = iphone[2].replace(/_/g, ".")),
-            ipad && (os.ios = os.ipad = !0, os.version = ipad[2].replace(/_/g, ".")),
-            webOS && (os.webos = !0, os.version = webOS[2]),
-            touchPad && (os.touchpad = !0),
-            BlackBerry && (os.blackberry = !0, os.version = BlackBerry[2]),
-            BB10 && (os.bb10 = !0, os.version = BB10[2]),
-            RIM && (os.rimtabletos = !0, os.version = RIM[2]),
-            PlayBook && (browser.playbook = !0),
-            Kindle && (os.kindle = !0, os.version = Kindle[1]),
-            Silk && (browser.silk = !0, browser.version = Silk[1]), !Silk && os.android && a.match(/Kindle Fire/) && (browser.silk = !0),
-            Chrome && (browser.chrome = !0, browser.version = Chrome[1]),
-            Firefox && (browser.firefox = !0, browser.version = Firefox[1]),
-            os.tablet = !!(ipad || PlayBook || android && !a.match(/Mobile/) || Firefox && a.match(/Tablet/)),
-            os.phone = !os.tablet && !!(android || iphone || windowPhone || webOS || BlackBerry || BB10 || Chrome && a.match(/Android/) || Chrome && a.match(/CriOS\/([\d.]+)/) || Firefox && a.match(/Mobile/)),
-            os.pc = !os.tablet && !os.phone && !!PC;
-    }
-    var u = navigator.userAgent;
-    b.call(a, u), a.__detect = b;
-    a.os.touch = !!(('ontouchstart' in window) && window.DocumentTouch && document instanceof DocumentTouch);
-})(Jser);
+
+        //hack to fix letterboxed full screen web apps on 4" iPhone / iPod with iOS 6
+        if (navigator.platform.match(/iPhone|iPod/i) && (screen.height === 568) && navigator.userAgent.match(/\bOS 6_/)) {
+            if (Jser.viewportmeta) {
+                Jser.viewportmeta.content = Jser.viewportmeta.content
+                    .replace(/\bwidth\s*=\s*320\b/, 'width=320.1')
+                    .replace(/\bwidth\s*=\s*device-width\b/, '');
+            }
+        }
+    };
+
+})(window)

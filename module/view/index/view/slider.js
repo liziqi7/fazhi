@@ -8,19 +8,15 @@ define('', '', function(require) {
 		model: model,
 		template: H,
 		initialize: function() {
-			var t = this;
-			if (t.model._loaded) {
+			var t = this;			
+			// t.listenTo(t.model, "sync", function() {
 				t.render();
-			} else {
-				t.listenTo(t.model, "sync", function() {
-					t.render();
-				});
-			}
+			// });			
 		},
 		//待优化
 		render: function() {
 			var t = this,
-				data = t.model.toJSON();
+				data = {"data":[{"id":0,"pic":"resource/images/s1.png"},{"id":1,"pic":"resource/images/s2.png"}]};//t.model.toJSON();
 			var html = _.template(t.template, data);
 			t.$el.show().html(html);
 			t.doSlider();
@@ -40,9 +36,9 @@ define('', '', function(require) {
 		}
 	});
 	return function(pars) {
-		model.set({
-			action: 'carousel/carouselList'
-		});		
+		// model.set({
+		// 	action: 'carousel/carouselList'
+		// });		
 		return new V({
 			el: pars.el
 		});

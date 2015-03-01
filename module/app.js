@@ -28,7 +28,7 @@ define(function(require, exports) {
             } else {
                 this.$el.hide();
             }
-            if (m=="login"||m=="sign") {
+            if (m=="login"||m=="sign"||m=="forget") {
                 $('body').addClass("bg1");
             } else {
                 $('body').removeClass("bg1");
