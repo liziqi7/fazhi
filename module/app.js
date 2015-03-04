@@ -11,9 +11,20 @@ define(function(require, exports) {
         },
         initialize: function() {
             var t = this;
+            t.loadData();
             t.navs = this.$el.find("li");
             this.bindEvent();
             return t;
+        },
+        loadData: function() {
+            var _html = "";
+            Jser.getJSON("http://api.zcth-uni.com/good/set/.json?movie_id=7050", '', function(data) {
+                debugger
+                // $.each(data.data, function(item) {
+                //     _html += '<li sid=' + item.classID + '><a href="#index/column' + item.classID + '">' + item.className + '</a></li>'
+                // });
+                // $(".js-nav").html(_html)
+            })
         },
         initNav: function(m) {
             var t = this,
@@ -28,7 +39,7 @@ define(function(require, exports) {
             } else {
                 this.$el.hide();
             }
-            if (m=="login"||m=="sign"||m=="forget") {
+            if (m == "login" || m == "sign" || m == "forget") {
                 $('body').addClass("bg1");
             } else {
                 $('body').removeClass("bg1");

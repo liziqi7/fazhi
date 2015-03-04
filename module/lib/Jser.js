@@ -216,7 +216,7 @@
                     } else {
                         e.url = url;
                         e.data = data;
-                        Jserlog("------------------------error↓--------------------------");
+                        Jser.log("------------------------error↓--------------------------");
                         Jser.log("error:" + "参数：" + data + ",地址:" + url + "状态: " + e.status + " " + e.statusText);
                         Jser.log("错误行为分析：")
                         Jser.log("说明你的请求并没有返回值,或者返回值超时")
